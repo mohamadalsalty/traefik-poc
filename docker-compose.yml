@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--api.insecure=true"                      # Enables the Traefik dashboard (insecure)
+      - "--providers.docker=true"                  # Enables Docker as a provider
+      - "--entrypoints.web.address=:80"            # Defines an entrypoint named 'web' on port 80
+    ports:
+      - "80:80"        # HTTP port
+      - "8080:8080"    # Traefik dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"  # Allows Traefik to listen to Docker events
+    labels:
+      - "traefik.enable=true"
+
+  whoami:
+    image: traefik/whoami
+    labels:
+      - "traefik.http.routers.whoami.rule=Host(`localhost`)"  # Routes requests to 'localhost'
+      - "traefik.http.routers.whoami.entrypoints=web"          # Uses the 'web' entrypoint
